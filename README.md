@@ -9,17 +9,3 @@ dsh plugin --profile <name> add github:<你的 GitHub 用户名>/plugin-manager
 ```
 
 安装后重启 DSH，在 **设置 → 插件 → 插件管理** 使用。
-
----
-
-# plugin-manager — DSH Plugin Manager
-
-A plugin manager for the DSH Web GUI: **browse, install, uninstall, update, enable/disable plugins**, manage multiple profiles and edit plugin configs from **Settings → Plugins**.
-
-## Install
-
-```bash
-dsh plugin --profile <name> add github:<your-github-username>/plugin-manager
-```
-
-Restart DSH after installation, then use it at **Settings → Plugins → Plugin Manager**.
