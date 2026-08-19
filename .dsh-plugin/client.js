@@ -61,6 +61,7 @@ var CSS = `
 [data-plugin-manager] .pm-btn-danger { border-color: var(--dsw-alias-state-error-primary, rgba(192,57,43,.55)); color: var(--dsw-alias-state-error-primary, #C0392B); }
 [data-plugin-manager] .pm-banner { border-radius: 8px; padding: 10px 14px; font-size: 12px; line-height: 1.6; }
 [data-plugin-manager] .pm-banner-warn { background: var(--dsw-alias-state-warn-secondary, transparent); border: 1px solid var(--dsw-alias-state-warn-primary, rgba(184,134,11,.5)); color: inherit; }
+[data-plugin-manager] .pm-banner-success { background: var(--dsw-alias-state-success-secondary, rgba(128,128,128,.12)); border: 1px solid var(--dsw-alias-state-success-primary, rgba(30,132,73,.5)); color: inherit; }
 [data-plugin-manager] .pm-banner-error { background: var(--dsw-alias-state-error-secondary, transparent); border: 1px solid var(--dsw-alias-state-error-primary, rgba(192,57,43,.5)); color: inherit; }
 [data-plugin-manager] .pm-search { display: flex; gap: 10px; align-items: center; }
 [data-plugin-manager] .pm-search input { flex: 1; min-width: 0; background: var(--dsw-alias-bg-mask-1, transparent); border: 1px solid var(--dsw-alias-border-l1, rgba(128,128,128,.3)); color: inherit; border-radius: 8px; padding: 8px 12px; font-size: 12px; }
@@ -447,10 +448,9 @@ function PluginManagerTab() {
   const [view, setView] = (0, import_react5.useState)("plugins");
   const [configs, setConfigs] = (0, import_react5.useState)([]);
   const [installOpen, setInstallOpen] = (0, import_react5.useState)(false);
-  const [restartHint, setRestartHint] = (0, import_react5.useState)(false);
+  const [success, setSuccess] = (0, import_react5.useState)(null);
   const [confirm, setConfirm] = (0, import_react5.useState)(CONFIRM_DEFAULTS);
   const [purgeData, setPurgeData] = (0, import_react5.useState)(false);
-  const [versionReport, setVersionReport] = (0, import_react5.useState)(null);
   const currentName = profiles.find((p) => p.isCurrent)?.name ?? null;
   const effectiveProfile = selected !== null && selected !== currentName ? selected : currentName;
   const targetIsCurrent = selected === null || selected === currentName;
@@ -506,6 +506,12 @@ function PluginManagerTab() {
   (0, import_react5.useEffect)(() => {
     if (view === "configs" && targetIsCurrent) void loadConfigs();
   }, [view, targetIsCurrent, loadConfigs]);
+  const successTimer = (0, import_react5.useRef)(null);
+  const showSuccess = (0, import_react5.useCallback)((message) => {
+    setSuccess(message);
+    clearTimeout(successTimer.current);
+    successTimer.current = setTimeout(() => setSuccess(null), 6e3);
+  }, []);
   const watchOp = (0, import_react5.useCallback)((opId, restartNeeded, beforeVersions) => {
     if (opId === void 0 || opId === null || watchers.current.has(opId)) return;
     watchers.current.set(opId, true);
@@ -526,14 +532,22 @@ function PluginManagerTab() {
           setError(`\u64CD\u4F5C\u5931\u8D25\uFF1A${op.error ?? `pnpm \u9000\u51FA\u7801 ${op.exitCode ?? "?"}`}${tail !== "" ? `\uFF08${tail}\uFF09` : ""}`);
           return;
         }
-        if (restartNeeded) setRestartHint(true);
-        if (op.status === "ok" && beforeVersions !== null && op.action === "update" && op.target !== "(\u5168\u90E8)") {
-          const fresh = await load();
-          const after = fresh.find((p) => p.name === op.target)?.version ?? null;
-          if (beforeVersions[op.target] !== void 0 && beforeVersions[op.target] !== after) {
-            setVersionReport({ name: op.target, before: beforeVersions[op.target], after });
+        if (op.status === "ok") {
+          const restartNote = restartNeeded ? "\uFF08\u91CD\u542F DSH \u540E\u751F\u6548\uFF09" : "";
+          if (op.action === "install") {
+            showSuccess(`\u2705 \u5B89\u88C5\u6210\u529F\uFF1A${op.target}${restartNote}`);
+          } else if (op.action === "uninstall") {
+            showSuccess(`\u2705 \u5378\u8F7D\u6210\u529F\uFF1A${op.target}${restartNote}`);
+          } else if (op.action === "update-all") {
+            showSuccess(`\u2705 \u5168\u90E8\u66F4\u65B0\u6210\u529F${restartNote}`);
+          } else if (op.action === "update") {
+            const fresh = await load();
+            const after = fresh.find((p) => p.name === op.target)?.version ?? null;
+            const before = beforeVersions !== null && beforeVersions[op.target] !== void 0 ? beforeVersions[op.target] : null;
+            const version = before !== null && after !== null && before !== after ? ` ${before} \u2192 ${after}` : "";
+            showSuccess(`\u2705 \u66F4\u65B0\u6210\u529F\uFF1A${op.target}${version}${restartNote}`);
+            return;
           }
-          return;
         }
         void load();
         return;
@@ -541,7 +555,7 @@ function PluginManagerTab() {
       setTimeout(tick, 1500);
     };
     setTimeout(tick, 300);
-  }, [load]);
+  }, [load, showSuccess]);
   const profileArg = targetIsCurrent ? void 0 : effectiveProfile;
   const runOp = (0, import_react5.useCallback)(async (fn) => {
     try {
@@ -658,7 +672,6 @@ function PluginManagerTab() {
       value: selected ?? "",
       onChange: (e) => {
         setSelected(e.target.value === "" ? null : e.target.value);
-        setVersionReport(null);
       },
       "aria-label": "\u9009\u62E9 profile",
       title: "\u64CD\u4F5C\u76EE\u6807 profile\uFF1A\u5B89\u88C5/\u5378\u8F7D/\u66F4\u65B0/\u542F\u505C\u5C06\u4F5C\u7528\u4E8E\u9009\u4E2D\u7684 profile"
@@ -672,7 +685,7 @@ function PluginManagerTab() {
   }), disabled: busy, title: "\u91CD\u65B0\u62C9\u53D6\u6E05\u5355/\u64CD\u4F5C\u8BB0\u5F55\u6570\u636E" }, "\u5237\u65B0\u5217\u8868"), /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", className: "pm-btn", onClick: () => setConfirm({ kind: "updateAll", plugin: null }), disabled: busy || inventory === null }, "\u5168\u90E8\u66F4\u65B0"), /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", className: "pm-btn pm-btn-primary", onClick: () => setInstallOpen(true) }, "\u5B89\u88C5\u63D2\u4EF6"))), /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-tabs", role: "tablist" }, /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", role: "tab", "aria-selected": view === "plugins", className: view === "plugins" ? "pm-tab pm-tab-active" : "pm-tab", onClick: () => setView("plugins") }, "\u63D2\u4EF6"), /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", role: "tab", "aria-selected": view === "configs", className: view === "configs" ? "pm-tab pm-tab-active" : "pm-tab", onClick: () => {
     setView("configs");
     if (targetIsCurrent) void loadConfigs();
-  }, disabled: !targetIsCurrent, title: !targetIsCurrent ? "\u914D\u7F6E\u4EC5\u5BF9\u5F53\u524D profile \u53EF\u7528" : void 0 }, "\u914D\u7F6E")), !targetIsCurrent ? /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-banner pm-banner-warn" }, "\u{1F3AF} \u64CD\u4F5C\u76EE\u6807\uFF1A", /* @__PURE__ */ import_react5.default.createElement("strong", null, selected), " profile\u3002\u5B89\u88C5/\u5378\u8F7D/\u66F4\u65B0/\u542F\u505C\u5C06\u5199\u5165\u8BE5 profile\uFF08\u82E5\u5B83\u4E0D\u662F\u5F53\u524D\u8FD0\u884C\u7684 profile\uFF0C\u53D8\u66F4\u5728\u5176\u4E0B\u6B21\u542F\u52A8\u65F6\u751F\u6548\uFF09\u3002") : null, versionReport !== null ? /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-banner pm-banner-warn" }, "\u66F4\u65B0\u5B8C\u6210\uFF1A", /* @__PURE__ */ import_react5.default.createElement("strong", null, versionReport.name), " ", versionReport.before ?? "?", " \u2192 ", versionReport.after ?? "?", "\uFF08\u9700\u91CD\u542F\u751F\u6548\uFF09", /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", className: "pm-btn", style: { marginLeft: 8 }, onClick: () => setVersionReport(null) }, "\u5173\u95ED")) : null, restartHint ? /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-banner pm-banner-warn" }, "\u26A0\uFE0F \u5B89\u88C5/\u5378\u8F7D/\u66F4\u65B0\u4F1A\u6539\u53D8 bundle \u5C42\uFF0C\u9700 ", /* @__PURE__ */ import_react5.default.createElement("strong", null, "\u91CD\u542F web"), "\uFF08\u91CD\u65B0\u8FD0\u884C ", /* @__PURE__ */ import_react5.default.createElement("code", null, "dsh web"), "\uFF09\u540E\u751F\u6548\u3002\u542F\u7528/\u7981\u7528\u65E0\u9700\u91CD\u542F\uFF0C\u5DF2\u5373\u65F6\u751F\u6548\u3002") : null, error !== null ? /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-banner pm-banner-error", role: "alert" }, error, /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", className: "pm-btn", style: { marginLeft: 8 }, onClick: () => void runWithBusy(async () => {
+  }, disabled: !targetIsCurrent, title: !targetIsCurrent ? "\u914D\u7F6E\u4EC5\u5BF9\u5F53\u524D profile \u53EF\u7528" : void 0 }, "\u914D\u7F6E")), !targetIsCurrent ? /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-banner pm-banner-warn" }, "\u{1F3AF} \u64CD\u4F5C\u76EE\u6807\uFF1A", /* @__PURE__ */ import_react5.default.createElement("strong", null, selected), " profile\u3002\u5B89\u88C5/\u5378\u8F7D/\u66F4\u65B0/\u542F\u505C\u5C06\u5199\u5165\u8BE5 profile\uFF08\u82E5\u5B83\u4E0D\u662F\u5F53\u524D\u8FD0\u884C\u7684 profile\uFF0C\u53D8\u66F4\u5728\u5176\u4E0B\u6B21\u542F\u52A8\u65F6\u751F\u6548\uFF09\u3002") : null, success !== null ? /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-banner pm-banner-success", role: "status" }, success) : null, error !== null ? /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-banner pm-banner-error", role: "alert" }, error, /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", className: "pm-btn", style: { marginLeft: 8 }, onClick: () => void runWithBusy(async () => {
     if (view === "configs" && targetIsCurrent) await loadConfigs();
     await load();
   }) }, "\u91CD\u8BD5")) : null, view === "plugins" ? /* @__PURE__ */ import_react5.default.createElement(import_react5.default.Fragment, null, /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-search" }, /* @__PURE__ */ import_react5.default.createElement("input", { type: "search", value: query, placeholder: "\u641C\u7D22\u63D2\u4EF6\uFF08\u540D\u79F0/\u63CF\u8FF0\uFF09", "aria-label": "\u641C\u7D22\u63D2\u4EF6", onChange: (e) => setQuery(e.target.value) }), /* @__PURE__ */ import_react5.default.createElement("span", { className: "pm-count" }, filtered.length, " / ", inventory?.plugins.length ?? 0, " \u4E2A")), status === "loading" ? /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-empty" }, "\u52A0\u8F7D\u4E2D\u2026") : null, status === "error" ? /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-empty" }, "\u52A0\u8F7D\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5") : null, status === "ready" && filtered.length === 0 ? /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-empty" }, query ? "\u65E0\u5339\u914D\u63D2\u4EF6" : `${effectiveProfile ?? ""} profile \u65E0\u5DF2\u5B89\u88C5\u63D2\u4EF6`) : null, status === "ready" && filtered.length > 0 ? /* @__PURE__ */ import_react5.default.createElement("ul", { className: "pm-grid", style: { listStyle: "none", margin: 0, padding: 0 } }, filtered.map((plugin) => /* @__PURE__ */ import_react5.default.createElement(

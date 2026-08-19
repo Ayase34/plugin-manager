@@ -24,6 +24,7 @@ export const CSS = `
 [data-plugin-manager] .pm-btn-danger { border-color: var(--dsw-alias-state-error-primary, rgba(192,57,43,.55)); color: var(--dsw-alias-state-error-primary, #C0392B); }
 [data-plugin-manager] .pm-banner { border-radius: 8px; padding: 10px 14px; font-size: 12px; line-height: 1.6; }
 [data-plugin-manager] .pm-banner-warn { background: var(--dsw-alias-state-warn-secondary, transparent); border: 1px solid var(--dsw-alias-state-warn-primary, rgba(184,134,11,.5)); color: inherit; }
+[data-plugin-manager] .pm-banner-success { background: var(--dsw-alias-state-success-secondary, rgba(128,128,128,.12)); border: 1px solid var(--dsw-alias-state-success-primary, rgba(30,132,73,.5)); color: inherit; }
 [data-plugin-manager] .pm-banner-error { background: var(--dsw-alias-state-error-secondary, transparent); border: 1px solid var(--dsw-alias-state-error-primary, rgba(192,57,43,.5)); color: inherit; }
 [data-plugin-manager] .pm-search { display: flex; gap: 10px; align-items: center; }
 [data-plugin-manager] .pm-search input { flex: 1; min-width: 0; background: var(--dsw-alias-bg-mask-1, transparent); border: 1px solid var(--dsw-alias-border-l1, rgba(128,128,128,.3)); color: inherit; border-radius: 8px; padding: 8px 12px; font-size: 12px; }

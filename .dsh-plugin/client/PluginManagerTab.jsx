@@ -34,10 +34,9 @@ export function PluginManagerTab() {
   const [view, setView] = useState('plugins') // plugins | configs
   const [configs, setConfigs] = useState([])
   const [installOpen, setInstallOpen] = useState(false)
-  const [restartHint, setRestartHint] = useState(false)
+  const [success, setSuccess] = useState(null) // 操作成功提示（绿色，自动消失）
   const [confirm, setConfirm] = useState(CONFIRM_DEFAULTS)
   const [purgeData, setPurgeData] = useState(false) // 卸载时是否同时删除插件数据（默认保留）
-  const [versionReport, setVersionReport] = useState(null) // {name, before, after}
 
   const currentName = profiles.find(p => p.isCurrent)?.name ?? null
   // 操作目标 profile：选中的 profile（缺省 = 当前运行 profile）。写操作跟随此目标。
@@ -98,6 +97,14 @@ export function PluginManagerTab() {
   useEffect(() => { if (view === 'configs' && targetIsCurrent) void loadConfigs() }, [view, targetIsCurrent, loadConfigs])
 
   // ---- 操作 ----
+  const successTimer = useRef(null)
+  /** 绿色成功提示（自动消失）。 */
+  const showSuccess = useCallback((message) => {
+    setSuccess(message)
+    clearTimeout(successTimer.current)
+    successTimer.current = setTimeout(() => setSuccess(null), 6000)
+  }, [])
+
   const watchOp = useCallback((opId, restartNeeded, beforeVersions) => {
     if (opId === undefined || opId === null || watchers.current.has(opId)) return
     watchers.current.set(opId, true)
@@ -113,15 +120,24 @@ export function PluginManagerTab() {
           setError(`操作失败：${op.error ?? `pnpm 退出码 ${op.exitCode ?? '?'}`}${tail !== '' ? `（${tail}）` : ''}`)
           return
         }
-        if (restartNeeded) setRestartHint(true)
-        if (op.status === 'ok' && beforeVersions !== null && op.action === 'update' && op.target !== '(全部)') {
-          // 更新完成：用刷新后的清单做版本对比报告
-          const fresh = await load()
-          const after = fresh.find(p => p.name === op.target)?.version ?? null
-          if (beforeVersions[op.target] !== undefined && beforeVersions[op.target] !== after) {
-            setVersionReport({ name: op.target, before: beforeVersions[op.target], after })
+        // 操作成功：绿色提示（含重启说明），不再弹黄色警告
+        if (op.status === 'ok') {
+          const restartNote = restartNeeded ? '（重启 DSH 后生效）' : ''
+          if (op.action === 'install') {
+            showSuccess(`✅ 安装成功：${op.target}${restartNote}`)
+          } else if (op.action === 'uninstall') {
+            showSuccess(`✅ 卸载成功：${op.target}${restartNote}`)
+          } else if (op.action === 'update-all') {
+            showSuccess(`✅ 全部更新成功${restartNote}`)
+          } else if (op.action === 'update') {
+            // 更新完成：刷新清单做版本对比，并入成功消息
+            const fresh = await load()
+            const after = fresh.find(p => p.name === op.target)?.version ?? null
+            const before = beforeVersions !== null && beforeVersions[op.target] !== undefined ? beforeVersions[op.target] : null
+            const version = before !== null && after !== null && before !== after ? ` ${before} → ${after}` : ''
+            showSuccess(`✅ 更新成功：${op.target}${version}${restartNote}`)
+            return
           }
-          return
         }
         void load()
         return
@@ -129,7 +145,7 @@ export function PluginManagerTab() {
       setTimeout(tick, 1500)
     }
     setTimeout(tick, 300)
-  }, [load])
+  }, [load, showSuccess])
 
   /** 写操作的目标 profile 参数：当前 profile 省略（后端缺省），其他 profile 显式指定。 */
   const profileArg = targetIsCurrent ? undefined : effectiveProfile
@@ -275,7 +291,7 @@ export function PluginManagerTab() {
           <select
             className="pm-profile-select"
             value={selected ?? ''}
-            onChange={e => { setSelected(e.target.value === '' ? null : e.target.value); setVersionReport(null) }}
+            onChange={e => { setSelected(e.target.value === '' ? null : e.target.value) }}
             aria-label="选择 profile"
             title="操作目标 profile：安装/卸载/更新/启停将作用于选中的 profile"
           >
@@ -305,17 +321,8 @@ export function PluginManagerTab() {
         </div>
       ) : null}
 
-      {versionReport !== null ? (
-        <div className="pm-banner pm-banner-warn">
-          更新完成：<strong>{versionReport.name}</strong> {versionReport.before ?? '?'} → {versionReport.after ?? '?'}（需重启生效）
-          <button type="button" className="pm-btn" style={{ marginLeft: 8 }} onClick={() => setVersionReport(null)}>关闭</button>
-        </div>
-      ) : null}
-
-      {restartHint ? (
-        <div className="pm-banner pm-banner-warn">
-          ⚠️ 安装/卸载/更新会改变 bundle 层，需 <strong>重启 web</strong>（重新运行 <code>dsh web</code>）后生效。启用/禁用无需重启，已即时生效。
-        </div>
+      {success !== null ? (
+        <div className="pm-banner pm-banner-success" role="status">{success}</div>
       ) : null}
 
       {error !== null ? (
