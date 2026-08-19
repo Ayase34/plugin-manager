@@ -10,6 +10,7 @@ import {
 } from '../src/routes.mjs'
 import { PluginCard } from './PluginCard.jsx'
 import { InstallDialog } from './InstallDialog.jsx'
+import { OpsPanel } from './OpsPanel.jsx'
 import { ConfigPanel } from './ConfigPanel.jsx'
 import { NewProfileDialog } from './NewProfileDialog.jsx'
 
@@ -97,12 +98,9 @@ export function PluginManagerTab() {
   useEffect(() => { if (view === 'configs' && targetIsCurrent) void loadConfigs() }, [view, targetIsCurrent, loadConfigs])
 
   // ---- 操作 ----
-  const successTimer = useRef(null)
-  /** 绿色成功提示（自动消失）。 */
+  /** 绿色成功提示（保留显示，用户可手动关闭——不再一闪而过）。 */
   const showSuccess = useCallback((message) => {
     setSuccess(message)
-    clearTimeout(successTimer.current)
-    successTimer.current = setTimeout(() => setSuccess(null), 6000)
   }, [])
 
   const watchOp = useCallback((opId, restartNeeded, beforeVersions) => {
@@ -322,7 +320,10 @@ export function PluginManagerTab() {
       ) : null}
 
       {success !== null ? (
-        <div className="pm-banner pm-banner-success" role="status">{success}</div>
+        <div className="pm-banner pm-banner-success" role="status">
+          {success}
+          <button type="button" className="pm-btn" style={{ marginLeft: 8 }} onClick={() => setSuccess(null)}>关闭</button>
+        </div>
       ) : null}
 
       {error !== null ? (
@@ -334,6 +335,7 @@ export function PluginManagerTab() {
 
       {view === 'plugins' ? (
         <>
+          <OpsPanel ops={ops} audit={inventory?.audit ?? []} />
           <div className="pm-search">
             <input type="search" value={query} placeholder="搜索插件（名称/描述）" aria-label="搜索插件" onChange={e => setQuery(e.target.value)} />
             <span className="pm-count">{filtered.length} / {inventory?.plugins.length ?? 0} 个</span>

@@ -139,7 +139,7 @@ var CSS = `
 `;
 
 // .dsh-plugin/client/PluginManagerTab.jsx
-var import_react5 = __toESM(require("react"), 1);
+var import_react6 = __toESM(require("react"), 1);
 
 // .dsh-plugin/client/api.mjs
 async function api(path, options = {}) {
@@ -165,6 +165,19 @@ async function api(path, options = {}) {
     throw new Error("\u63D2\u4EF6\u670D\u52A1\u672A\u54CD\u5E94\uFF08\u54CD\u5E94\u4E0D\u662F JSON\uFF09\u3002\u53EF\u80FD\u539F\u56E0\uFF1ANode half \u672A\u52A0\u8F7D\uFF0C\u8BF7\u91CD\u542F DSH \u540E\u518D\u8BD5");
   }
   return data;
+}
+function opStatusLabel(status) {
+  if (status === "running") return "\u8FD0\u884C\u4E2D";
+  if (status === "ok") return "\u6210\u529F";
+  if (status === "error") return "\u5931\u8D25";
+  return status;
+}
+function opActionLabel(action) {
+  if (action === "install") return "\u5B89\u88C5";
+  if (action === "uninstall") return "\u5378\u8F7D";
+  if (action === "update") return "\u66F4\u65B0";
+  if (action === "update-all") return "\u5168\u90E8\u66F4\u65B0";
+  return action;
 }
 
 // .dsh-plugin/src/routes.mjs
@@ -250,8 +263,26 @@ function InstallDialog({ onCancel, onInstall }) {
   ), /* @__PURE__ */ import_react2.default.createElement("div", { className: "pm-sub" }, "\u56FA\u5B9A\u683C\u5F0F\u6307\u4EE4\uFF1A", /* @__PURE__ */ import_react2.default.createElement("code", null, "dsh plugin [--profile <name>] add <plugin>"), "\u3002", /* @__PURE__ */ import_react2.default.createElement("strong", null, "\u672A\u5199 ", /* @__PURE__ */ import_react2.default.createElement("code", null, "--profile"), " \u65F6\u5B89\u88C5\u5230\u5F53\u524D\u9009\u4E2D\u7684 profile\uFF08\u4E0D\u4F1A\u88C5\u9519\u5730\u65B9\uFF09"), "\uFF1B \u663E\u5F0F\u6307\u5B9A\u5219\u4EE5\u547D\u4EE4\u4E3A\u51C6\u3002", /* @__PURE__ */ import_react2.default.createElement("code", null, "<plugin>"), " \u652F\u6301\uFF1A npm \u5305\u540D\uFF08", /* @__PURE__ */ import_react2.default.createElement("code", null, "some-plugin"), "\uFF09\u3001GitHub\uFF08", /* @__PURE__ */ import_react2.default.createElement("code", null, "github:owner/repo#main"), "\uFF09\u3001 \u672C\u5730\u7EDD\u5BF9\u8DEF\u5F84\uFF08", /* @__PURE__ */ import_react2.default.createElement("code", null, "link:C:/path"), " \u8F6F\u94FE\u6216 ", /* @__PURE__ */ import_react2.default.createElement("code", null, "file:"), " \u590D\u5236\uFF09\u3002"), /* @__PURE__ */ import_react2.default.createElement("div", { className: "pm-warn" }, "\u26A0\uFE0F \u5B89\u88C5\u7B2C\u4E09\u65B9\u63D2\u4EF6\u610F\u5473\u7740\u6267\u884C\u5176\u4EE3\u7801\uFF08\u542B prepare \u6784\u5EFA\u811A\u672C\uFF09\uFF0C\u53EF\u80FD\u8BBF\u95EE\u4F60\u7684\u6587\u4EF6\u4E0E\u51ED\u636E\u3002 \u8BF7\u786E\u8BA4\u6765\u6E90\u53EF\u4FE1\u540E\u518D\u5B89\u88C5\u3002"), error !== null ? /* @__PURE__ */ import_react2.default.createElement("div", { className: "pm-banner pm-banner-error", role: "alert" }, error) : null), /* @__PURE__ */ import_react2.default.createElement("div", { className: "pm-modal-foot" }, /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", className: "pm-btn", disabled: busy, onClick: onCancel }, "\u53D6\u6D88"), /* @__PURE__ */ import_react2.default.createElement("button", { type: "button", className: "pm-btn pm-btn-primary", disabled: busy || command.trim() === "", onClick: () => void submit() }, busy ? "\u5B89\u88C5\u4E2D\u2026" : "\u5B89\u88C5"))));
 }
 
-// .dsh-plugin/client/ConfigPanel.jsx
+// .dsh-plugin/client/OpsPanel.jsx
 var import_react3 = __toESM(require("react"), 1);
+function formatTime(ms) {
+  const d = new Date(ms);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+function OpRow({ op }) {
+  const [showLines, setShowLines] = (0, import_react3.useState)(op.status === "running");
+  const running = op.status === "running";
+  return /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-op", "data-op-status": op.status }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-op-head" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "pm-status pm-status-" + op.status }, running ? /* @__PURE__ */ import_react3.default.createElement("span", { className: "pm-spin", "aria-hidden": "true" }) : null, opStatusLabel(op.status)), /* @__PURE__ */ import_react3.default.createElement("strong", null, opActionLabel(op.action)), /* @__PURE__ */ import_react3.default.createElement("span", { className: "pm-op-target" }, op.target), op.exitCode !== null ? /* @__PURE__ */ import_react3.default.createElement("span", { className: "pm-sub" }, "exit ", op.exitCode) : null, /* @__PURE__ */ import_react3.default.createElement("span", { className: "pm-op-time" }, formatTime(op.startedAt)), /* @__PURE__ */ import_react3.default.createElement("button", { type: "button", className: "pm-btn", onClick: () => setShowLines((v) => !v) }, showLines ? "\u6536\u8D77\u8F93\u51FA" : `\u8F93\u51FA (${op.lines.length})`)), op.error !== null ? /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-banner pm-banner-error" }, op.error) : null, showLines && op.lines.length > 0 ? /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-op-lines" }, op.lines.map((line, i) => /* @__PURE__ */ import_react3.default.createElement("div", { key: i, className: /error|ERR|failed|E\s*[0-9]+/i.test(line) ? "pm-op-line-error" : void 0 }, line))) : null);
+}
+function OpsPanel({ ops, audit }) {
+  const [open, setOpen] = (0, import_react3.useState)(ops.some((op) => op.status === "running"));
+  const running = ops.some((op) => op.status === "running");
+  return /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-ops" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-ops-head", onClick: () => setOpen((v) => !v), role: "button", "aria-expanded": open }, running ? /* @__PURE__ */ import_react3.default.createElement("span", { className: "pm-spin", "aria-hidden": "true" }) : null, /* @__PURE__ */ import_react3.default.createElement("strong", null, "\u64CD\u4F5C\u8BB0\u5F55"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "pm-sub" }, ops.length, " \u6761\u672C\u6B21\u4F1A\u8BDD"), audit.length > 0 ? /* @__PURE__ */ import_react3.default.createElement("span", { className: "pm-sub" }, "\xB7 \u5BA1\u8BA1 ", audit.length, " \u6761") : null), open ? /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-ops-list" }, ops.length === 0 ? /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-empty" }, "\u6682\u65E0\u64CD\u4F5C\u8BB0\u5F55") : null, ops.map((op) => /* @__PURE__ */ import_react3.default.createElement(OpRow, { key: op.id, op }))) : null);
+}
+
+// .dsh-plugin/client/ConfigPanel.jsx
+var import_react4 = __toESM(require("react"), 1);
 function nodeAt(schema, id) {
   return schema?.refs?.[id] ?? null;
 }
@@ -269,8 +300,8 @@ function deepDiff(before, after) {
   return after;
 }
 function JsonField({ value, onChange }) {
-  const [text, setText] = (0, import_react3.useState)(() => JSON.stringify(value ?? null, null, 1));
-  const [error, setError] = (0, import_react3.useState)(null);
+  const [text, setText] = (0, import_react4.useState)(() => JSON.stringify(value ?? null, null, 1));
+  const [error, setError] = (0, import_react4.useState)(null);
   const commit = (nextText) => {
     setText(nextText);
     try {
@@ -281,7 +312,7 @@ function JsonField({ value, onChange }) {
       setError(String(e?.message ?? e));
     }
   };
-  return /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-field" }, /* @__PURE__ */ import_react3.default.createElement(
+  return /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-field" }, /* @__PURE__ */ import_react4.default.createElement(
     "textarea",
     {
       className: error !== null ? "pm-cfg-json pm-cfg-error" : "pm-cfg-json",
@@ -290,22 +321,22 @@ function JsonField({ value, onChange }) {
       spellCheck: false,
       onChange: (e) => commit(e.target.value)
     }
-  ), error !== null ? /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-err", role: "alert" }, error) : null);
+  ), error !== null ? /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-err", role: "alert" }, error) : null);
 }
 function Field({ schema, node, value, onChange, name: name2, secret, secretPath }) {
   const meta = node?.meta ?? {};
-  const label = /* @__PURE__ */ import_react3.default.createElement("span", { className: "pm-cfg-label" }, name2, meta.description !== void 0 && meta.description !== "" ? /* @__PURE__ */ import_react3.default.createElement("em", { title: String(meta.description) }, String(meta.description)) : null, secret ? /* @__PURE__ */ import_react3.default.createElement("span", { className: "pm-badge" }, "secret") : null);
+  const label = /* @__PURE__ */ import_react4.default.createElement("span", { className: "pm-cfg-label" }, name2, meta.description !== void 0 && meta.description !== "" ? /* @__PURE__ */ import_react4.default.createElement("em", { title: String(meta.description) }, String(meta.description)) : null, secret ? /* @__PURE__ */ import_react4.default.createElement("span", { className: "pm-badge" }, "secret") : null);
   if (secret) {
-    return /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react3.default.createElement("span", { className: "pm-cfg-hidden" }, "\u5DF2\u9690\u85CF\uFF08\u654F\u611F\u5B57\u6BB5\uFF0C\u4FDD\u5B58\u65F6\u4FDD\u6301\u539F\u503C\uFF09"));
+    return /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react4.default.createElement("span", { className: "pm-cfg-hidden" }, "\u5DF2\u9690\u85CF\uFF08\u654F\u611F\u5B57\u6BB5\uFF0C\u4FDD\u5B58\u65F6\u4FDD\u6301\u539F\u503C\uFF09"));
   }
   if (node === null) {
-    return /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react3.default.createElement(JsonField, { value, onChange }));
+    return /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react4.default.createElement(JsonField, { value, onChange }));
   }
   switch (node.type) {
     case "string":
-      return /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react3.default.createElement("input", { type: "text", className: "pm-cfg-input", value: value ?? "", onChange: (e) => onChange(e.target.value) }));
+      return /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react4.default.createElement("input", { type: "text", className: "pm-cfg-input", value: value ?? "", onChange: (e) => onChange(e.target.value) }));
     case "number":
-      return /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react3.default.createElement(
+      return /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react4.default.createElement(
         "input",
         {
           type: "number",
@@ -323,23 +354,23 @@ function Field({ schema, node, value, onChange, name: name2, secret, secretPath 
         }
       ));
     case "boolean":
-      return /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react3.default.createElement("input", { type: "checkbox", checked: value === true, onChange: (e) => onChange(e.target.checked) }));
+      return /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react4.default.createElement("input", { type: "checkbox", checked: value === true, onChange: (e) => onChange(e.target.checked) }));
     case "const":
-      return /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react3.default.createElement("code", { className: "pm-cfg-fixed" }, JSON.stringify(node.value)));
+      return /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react4.default.createElement("code", { className: "pm-cfg-fixed" }, JSON.stringify(node.value)));
     case "union": {
       const list = node.list ?? [];
       const consts = list.map((id) => nodeAt(schema, id));
       if (list.length > 0 && consts.every((n) => n !== null && n.type === "const")) {
         const options = consts.map((n) => n.value);
-        return /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react3.default.createElement("select", { className: "pm-cfg-input", value: options.includes(value) ? value : "", onChange: (e) => onChange(e.target.value) }, !options.includes(value) ? /* @__PURE__ */ import_react3.default.createElement("option", { value: "", disabled: true }, "\uFF08\u5F53\u524D\u503C\u4E0D\u5728\u9009\u9879\u4E2D\uFF09") : null, options.map((opt) => /* @__PURE__ */ import_react3.default.createElement("option", { key: String(opt), value: opt }, String(opt)))));
+        return /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react4.default.createElement("select", { className: "pm-cfg-input", value: options.includes(value) ? value : "", onChange: (e) => onChange(e.target.value) }, !options.includes(value) ? /* @__PURE__ */ import_react4.default.createElement("option", { value: "", disabled: true }, "\uFF08\u5F53\u524D\u503C\u4E0D\u5728\u9009\u9879\u4E2D\uFF09") : null, options.map((opt) => /* @__PURE__ */ import_react4.default.createElement("option", { key: String(opt), value: opt }, String(opt)))));
       }
-      return /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react3.default.createElement(JsonField, { value, onChange }));
+      return /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react4.default.createElement(JsonField, { value, onChange }));
     }
     case "array":
-      return /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react3.default.createElement(JsonField, { value: value ?? [], onChange }));
+      return /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react4.default.createElement(JsonField, { value: value ?? [], onChange }));
     case "object": {
       const dict = node.dict ?? {};
-      return /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-group" }, Object.entries(dict).map(([key, id]) => /* @__PURE__ */ import_react3.default.createElement(
+      return /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-group" }, Object.entries(dict).map(([key, id]) => /* @__PURE__ */ import_react4.default.createElement(
         Field,
         {
           key,
@@ -351,15 +382,15 @@ function Field({ schema, node, value, onChange, name: name2, secret, secretPath 
           secret: secretPath !== void 0 && secretPath.includes(key),
           secretPath
         }
-      )), Object.keys(dict).length === 0 ? /* @__PURE__ */ import_react3.default.createElement("span", { className: "pm-sub" }, "\uFF08\u7A7A\u5BF9\u8C61\uFF09") : null));
+      )), Object.keys(dict).length === 0 ? /* @__PURE__ */ import_react4.default.createElement("span", { className: "pm-sub" }, "\uFF08\u7A7A\u5BF9\u8C61\uFF09") : null));
     }
     default:
-      return /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react3.default.createElement(JsonField, { value, onChange }));
+      return /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-row" }, label, /* @__PURE__ */ import_react4.default.createElement(JsonField, { value, onChange }));
   }
 }
 function ConfigCard({ config, busy, onSave, onError }) {
-  const [draft, setDraft] = (0, import_react3.useState)(() => JSON.parse(JSON.stringify(config.value ?? null)));
-  const [saved, setSaved] = (0, import_react3.useState)(false);
+  const [draft, setDraft] = (0, import_react4.useState)(() => JSON.parse(JSON.stringify(config.value ?? null)));
+  const [saved, setSaved] = (0, import_react4.useState)(false);
   const root = nodeAt(config.schema, config.schema?.uid);
   const secretPaths = (config.secrets ?? []).map((s) => Array.isArray(s?.path) ? s.path.join(".") : null).filter(Boolean);
   const isSecretField = (path) => secretPaths.some((p) => p === path || p.startsWith(path + "."));
@@ -375,7 +406,7 @@ function ConfigCard({ config, busy, onSave, onError }) {
     }
   };
   const reset = () => setDraft(JSON.parse(JSON.stringify(config.value ?? null)));
-  return /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-card", "data-ns": config.ns }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-head" }, /* @__PURE__ */ import_react3.default.createElement("strong", { className: "pm-cfg-ns" }, config.ns), /* @__PURE__ */ import_react3.default.createElement("span", { className: "pm-badge" }, config.applies === "restart" ? "\u91CD\u542F\u751F\u6548" : "\u5B9E\u65F6\u751F\u6548"), config.plugin !== null ? /* @__PURE__ */ import_react3.default.createElement("span", { className: "pm-badge pm-badge-bundle" }, config.plugin.name) : /* @__PURE__ */ import_react3.default.createElement("span", { className: "pm-badge" }, "\u5BBF\u4E3B\u6CE8\u518C"), config.hasUser ? /* @__PURE__ */ import_react3.default.createElement("span", { className: "pm-badge" }, "\u5DF2\u8986\u76D6\u9ED8\u8BA4\u503C") : null), /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-body" }, root !== null && root.type === "object" ? /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-form" }, Object.entries(root.dict ?? {}).map(([key, id]) => /* @__PURE__ */ import_react3.default.createElement(
+  return /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-card", "data-ns": config.ns }, /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-head" }, /* @__PURE__ */ import_react4.default.createElement("strong", { className: "pm-cfg-ns" }, config.ns), /* @__PURE__ */ import_react4.default.createElement("span", { className: "pm-badge" }, config.applies === "restart" ? "\u91CD\u542F\u751F\u6548" : "\u5B9E\u65F6\u751F\u6548"), config.plugin !== null ? /* @__PURE__ */ import_react4.default.createElement("span", { className: "pm-badge pm-badge-bundle" }, config.plugin.name) : /* @__PURE__ */ import_react4.default.createElement("span", { className: "pm-badge" }, "\u5BBF\u4E3B\u6CE8\u518C"), config.hasUser ? /* @__PURE__ */ import_react4.default.createElement("span", { className: "pm-badge" }, "\u5DF2\u8986\u76D6\u9ED8\u8BA4\u503C") : null), /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-body" }, root !== null && root.type === "object" ? /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-form" }, Object.entries(root.dict ?? {}).map(([key, id]) => /* @__PURE__ */ import_react4.default.createElement(
     Field,
     {
       key,
@@ -387,22 +418,22 @@ function ConfigCard({ config, busy, onSave, onError }) {
       secret: isSecretField(key),
       secretPath: isSecretField(key) ? secretPaths : void 0
     }
-  ))) : /* @__PURE__ */ import_react3.default.createElement(JsonField, { value: draft, onChange: setDraft })), /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-cfg-foot" }, /* @__PURE__ */ import_react3.default.createElement("button", { type: "button", className: "pm-btn", disabled: busy, onClick: reset }, "\u91CD\u7F6E\u4E3A\u5F53\u524D\u503C"), /* @__PURE__ */ import_react3.default.createElement("button", { type: "button", className: "pm-btn pm-btn-primary", disabled: busy, onClick: () => void save() }, busy ? "\u4FDD\u5B58\u4E2D\u2026" : saved ? "\u5DF2\u4FDD\u5B58 \u2713" : "\u4FDD\u5B58")));
+  ))) : /* @__PURE__ */ import_react4.default.createElement(JsonField, { value: draft, onChange: setDraft })), /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-cfg-foot" }, /* @__PURE__ */ import_react4.default.createElement("button", { type: "button", className: "pm-btn", disabled: busy, onClick: reset }, "\u91CD\u7F6E\u4E3A\u5F53\u524D\u503C"), /* @__PURE__ */ import_react4.default.createElement("button", { type: "button", className: "pm-btn pm-btn-primary", disabled: busy, onClick: () => void save() }, busy ? "\u4FDD\u5B58\u4E2D\u2026" : saved ? "\u5DF2\u4FDD\u5B58 \u2713" : "\u4FDD\u5B58")));
 }
 function ConfigPanel({ configs, busy, onSave, onError }) {
-  const [query, setQuery] = (0, import_react3.useState)("");
+  const [query, setQuery] = (0, import_react4.useState)("");
   const q = query.trim().toLocaleLowerCase();
   const filtered = configs.filter((c) => c.ns.toLocaleLowerCase().includes(q) || (c.plugin?.name ?? "").toLocaleLowerCase().includes(q));
-  return /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-configs" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-search" }, /* @__PURE__ */ import_react3.default.createElement("input", { type: "search", value: query, placeholder: "\u641C\u7D22\u914D\u7F6E\uFF08namespace / \u63D2\u4EF6\u540D\uFF09", "aria-label": "\u641C\u7D22\u914D\u7F6E", onChange: (e) => setQuery(e.target.value) }), /* @__PURE__ */ import_react3.default.createElement("span", { className: "pm-count" }, filtered.length, " / ", configs.length, " \u4E2A")), configs.length === 0 ? /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-empty" }, "\u6CA1\u6709\u63D2\u4EF6\u6CE8\u518C\u914D\u7F6E\uFF08settings schema\uFF09") : null, filtered.length === 0 && configs.length > 0 ? /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-empty" }, "\u65E0\u5339\u914D\u914D\u7F6E") : null, /* @__PURE__ */ import_react3.default.createElement("div", { className: "pm-grid", style: { listStyle: "none", margin: 0, padding: 0 } }, filtered.map((config) => /* @__PURE__ */ import_react3.default.createElement(ConfigCard, { key: config.ns, config, busy, onSave, onError }))));
+  return /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-configs" }, /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-search" }, /* @__PURE__ */ import_react4.default.createElement("input", { type: "search", value: query, placeholder: "\u641C\u7D22\u914D\u7F6E\uFF08namespace / \u63D2\u4EF6\u540D\uFF09", "aria-label": "\u641C\u7D22\u914D\u7F6E", onChange: (e) => setQuery(e.target.value) }), /* @__PURE__ */ import_react4.default.createElement("span", { className: "pm-count" }, filtered.length, " / ", configs.length, " \u4E2A")), configs.length === 0 ? /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-empty" }, "\u6CA1\u6709\u63D2\u4EF6\u6CE8\u518C\u914D\u7F6E\uFF08settings schema\uFF09") : null, filtered.length === 0 && configs.length > 0 ? /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-empty" }, "\u65E0\u5339\u914D\u914D\u7F6E") : null, /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-grid", style: { listStyle: "none", margin: 0, padding: 0 } }, filtered.map((config) => /* @__PURE__ */ import_react4.default.createElement(ConfigCard, { key: config.ns, config, busy, onSave, onError }))));
 }
 
 // .dsh-plugin/client/NewProfileDialog.jsx
-var import_react4 = __toESM(require("react"), 1);
+var import_react5 = __toESM(require("react"), 1);
 var NAME_HINT = "\u5C0F\u5199\u5B57\u6BCD\u5F00\u5934\uFF0C\u4EC5\u9650\u5B57\u6BCD/\u6570\u5B57/\u8FDE\u5B57\u7B26\uFF08kebab-case\uFF09";
 function NewProfileDialog({ onCancel, onCreate }) {
-  const [name2, setName] = (0, import_react4.useState)("");
-  const [busy, setBusy] = (0, import_react4.useState)(false);
-  const [error, setError] = (0, import_react4.useState)(null);
+  const [name2, setName] = (0, import_react5.useState)("");
+  const [busy, setBusy] = (0, import_react5.useState)(false);
+  const [error, setError] = (0, import_react5.useState)(null);
   const valid = /^[a-z][a-z0-9-]*$/.test(name2.trim()) && name2.trim() !== "node_modules";
   const submit = async () => {
     if (!valid || busy) return;
@@ -415,9 +446,9 @@ function NewProfileDialog({ onCancel, onCreate }) {
       setBusy(false);
     }
   };
-  return /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-modal-backdrop", role: "presentation", onMouseDown: (e) => {
+  return /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-modal-backdrop", role: "presentation", onMouseDown: (e) => {
     if (e.target === e.currentTarget && !busy) onCancel();
-  } }, /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-modal", role: "dialog", "aria-modal": "true", "aria-label": "\u65B0\u5EFA profile" }, /* @__PURE__ */ import_react4.default.createElement("h3", null, "\u65B0\u5EFA profile"), /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-modal-body" }, /* @__PURE__ */ import_react4.default.createElement(
+  } }, /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-modal", role: "dialog", "aria-modal": "true", "aria-label": "\u65B0\u5EFA profile" }, /* @__PURE__ */ import_react5.default.createElement("h3", null, "\u65B0\u5EFA profile"), /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-modal-body" }, /* @__PURE__ */ import_react5.default.createElement(
     "input",
     {
       type: "text",
@@ -429,32 +460,32 @@ function NewProfileDialog({ onCancel, onCreate }) {
       },
       autoFocus: true
     }
-  ), /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-sub" }, NAME_HINT, "\u3002\u65B0 profile \u5C06\u5305\u542B\u5B98\u65B9\u57FA\u7840 bundle\uFF08dsh-base + dsh-web-app\uFF09\uFF0C\u53EF\u968F\u540E\u5B89\u88C5\u63D2\u4EF6\u3002"), error !== null ? /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-banner pm-banner-error", role: "alert" }, error) : null), /* @__PURE__ */ import_react4.default.createElement("div", { className: "pm-modal-foot" }, /* @__PURE__ */ import_react4.default.createElement("button", { type: "button", className: "pm-btn", disabled: busy, onClick: onCancel }, "\u53D6\u6D88"), /* @__PURE__ */ import_react4.default.createElement("button", { type: "button", className: "pm-btn pm-btn-primary", disabled: busy || !valid, onClick: () => void submit() }, busy ? "\u521B\u5EFA\u4E2D\u2026" : "\u521B\u5EFA"))));
+  ), /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-sub" }, NAME_HINT, "\u3002\u65B0 profile \u5C06\u5305\u542B\u5B98\u65B9\u57FA\u7840 bundle\uFF08dsh-base + dsh-web-app\uFF09\uFF0C\u53EF\u968F\u540E\u5B89\u88C5\u63D2\u4EF6\u3002"), error !== null ? /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-banner pm-banner-error", role: "alert" }, error) : null), /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-modal-foot" }, /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", className: "pm-btn", disabled: busy, onClick: onCancel }, "\u53D6\u6D88"), /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", className: "pm-btn pm-btn-primary", disabled: busy || !valid, onClick: () => void submit() }, busy ? "\u521B\u5EFA\u4E2D\u2026" : "\u521B\u5EFA"))));
 }
 
 // .dsh-plugin/client/PluginManagerTab.jsx
 var CONFIRM_DEFAULTS = { kind: null, plugin: null };
 function PluginManagerTab() {
-  const [inventory, setInventory] = (0, import_react5.useState)(null);
-  const [status, setStatus] = (0, import_react5.useState)("loading");
-  const [error, setError] = (0, import_react5.useState)(null);
-  const [query, setQuery] = (0, import_react5.useState)("");
-  const [ops, setOps] = (0, import_react5.useState)([]);
-  const [busy, setBusy] = (0, import_react5.useState)(false);
-  const watchers = (0, import_react5.useRef)(/* @__PURE__ */ new Map());
-  const [profiles, setProfiles] = (0, import_react5.useState)([]);
-  const [selected, setSelected] = (0, import_react5.useState)(null);
-  const [createOpen, setCreateOpen] = (0, import_react5.useState)(false);
-  const [view, setView] = (0, import_react5.useState)("plugins");
-  const [configs, setConfigs] = (0, import_react5.useState)([]);
-  const [installOpen, setInstallOpen] = (0, import_react5.useState)(false);
-  const [success, setSuccess] = (0, import_react5.useState)(null);
-  const [confirm, setConfirm] = (0, import_react5.useState)(CONFIRM_DEFAULTS);
-  const [purgeData, setPurgeData] = (0, import_react5.useState)(false);
+  const [inventory, setInventory] = (0, import_react6.useState)(null);
+  const [status, setStatus] = (0, import_react6.useState)("loading");
+  const [error, setError] = (0, import_react6.useState)(null);
+  const [query, setQuery] = (0, import_react6.useState)("");
+  const [ops, setOps] = (0, import_react6.useState)([]);
+  const [busy, setBusy] = (0, import_react6.useState)(false);
+  const watchers = (0, import_react6.useRef)(/* @__PURE__ */ new Map());
+  const [profiles, setProfiles] = (0, import_react6.useState)([]);
+  const [selected, setSelected] = (0, import_react6.useState)(null);
+  const [createOpen, setCreateOpen] = (0, import_react6.useState)(false);
+  const [view, setView] = (0, import_react6.useState)("plugins");
+  const [configs, setConfigs] = (0, import_react6.useState)([]);
+  const [installOpen, setInstallOpen] = (0, import_react6.useState)(false);
+  const [success, setSuccess] = (0, import_react6.useState)(null);
+  const [confirm, setConfirm] = (0, import_react6.useState)(CONFIRM_DEFAULTS);
+  const [purgeData, setPurgeData] = (0, import_react6.useState)(false);
   const currentName = profiles.find((p) => p.isCurrent)?.name ?? null;
   const effectiveProfile = selected !== null && selected !== currentName ? selected : currentName;
   const targetIsCurrent = selected === null || selected === currentName;
-  const loadProfiles = (0, import_react5.useCallback)(async () => {
+  const loadProfiles = (0, import_react6.useCallback)(async () => {
     const data = await api(PROFILES_PATH);
     setProfiles(data.profiles ?? []);
     setSelected((prev) => {
@@ -463,7 +494,7 @@ function PluginManagerTab() {
       return prev;
     });
   }, []);
-  const load = (0, import_react5.useCallback)(async () => {
+  const load = (0, import_react6.useCallback)(async () => {
     if (effectiveProfile === null) return [];
     try {
       if (targetIsCurrent) {
@@ -488,7 +519,7 @@ function PluginManagerTab() {
       return [];
     }
   }, [effectiveProfile, targetIsCurrent]);
-  const loadConfigs = (0, import_react5.useCallback)(async () => {
+  const loadConfigs = (0, import_react6.useCallback)(async () => {
     try {
       const data = await api(CONFIGS_PATH);
       setConfigs(data.configs ?? []);
@@ -497,22 +528,19 @@ function PluginManagerTab() {
       setError(String(e?.message ?? e));
     }
   }, []);
-  (0, import_react5.useEffect)(() => {
+  (0, import_react6.useEffect)(() => {
     void loadProfiles();
   }, [loadProfiles]);
-  (0, import_react5.useEffect)(() => {
+  (0, import_react6.useEffect)(() => {
     if (effectiveProfile !== null) void load();
   }, [effectiveProfile, load]);
-  (0, import_react5.useEffect)(() => {
+  (0, import_react6.useEffect)(() => {
     if (view === "configs" && targetIsCurrent) void loadConfigs();
   }, [view, targetIsCurrent, loadConfigs]);
-  const successTimer = (0, import_react5.useRef)(null);
-  const showSuccess = (0, import_react5.useCallback)((message) => {
+  const showSuccess = (0, import_react6.useCallback)((message) => {
     setSuccess(message);
-    clearTimeout(successTimer.current);
-    successTimer.current = setTimeout(() => setSuccess(null), 6e3);
   }, []);
-  const watchOp = (0, import_react5.useCallback)((opId, restartNeeded, beforeVersions) => {
+  const watchOp = (0, import_react6.useCallback)((opId, restartNeeded, beforeVersions) => {
     if (opId === void 0 || opId === null || watchers.current.has(opId)) return;
     watchers.current.set(opId, true);
     const tick = async () => {
@@ -557,7 +585,7 @@ function PluginManagerTab() {
     setTimeout(tick, 300);
   }, [load, showSuccess]);
   const profileArg = targetIsCurrent ? void 0 : effectiveProfile;
-  const runOp = (0, import_react5.useCallback)(async (fn) => {
+  const runOp = (0, import_react6.useCallback)(async (fn) => {
     try {
       await fn();
       return true;
@@ -566,21 +594,21 @@ function PluginManagerTab() {
       return false;
     }
   }, []);
-  const doInstall = (0, import_react5.useCallback)(async (command) => {
+  const doInstall = (0, import_react6.useCallback)(async (command) => {
     setInstallOpen(false);
     await runOp(async () => {
       const result = await api(INSTALL_PATH, { method: "POST", body: { command, profile: profileArg } });
       watchOp(result.opId, result.restartNeeded === true, null);
     });
   }, [watchOp, profileArg, runOp]);
-  const doUninstall = (0, import_react5.useCallback)(async (plugin, purgeData2) => {
+  const doUninstall = (0, import_react6.useCallback)(async (plugin, purgeData2) => {
     setConfirm(CONFIRM_DEFAULTS);
     await runOp(async () => {
       const result = await api(UNINSTALL_PATH, { method: "POST", body: { name: plugin.name, profile: profileArg, purgeData: purgeData2 === true } });
       watchOp(result.opId, result.restartNeeded === true, null);
     });
   }, [watchOp, profileArg, runOp]);
-  const doUpdate = (0, import_react5.useCallback)(async (plugin) => {
+  const doUpdate = (0, import_react6.useCallback)(async (plugin) => {
     setConfirm(CONFIRM_DEFAULTS);
     const beforeVersions = {};
     for (const p of inventory?.plugins ?? []) beforeVersions[p.name] = p.version;
@@ -589,7 +617,7 @@ function PluginManagerTab() {
       watchOp(result.opId, result.restartNeeded === true, plugin === null ? null : beforeVersions);
     });
   }, [watchOp, inventory, profileArg, runOp]);
-  const doToggle = (0, import_react5.useCallback)(async (plugin, enabled) => {
+  const doToggle = (0, import_react6.useCallback)(async (plugin, enabled) => {
     await runOp(async () => {
       await api(TOGGLE_PATH, {
         method: "POST",
@@ -598,21 +626,21 @@ function PluginManagerTab() {
       await load();
     });
   }, [load, profileArg, runOp]);
-  const doSaveConfig = (0, import_react5.useCallback)(async (ns, patch, expectedRevision) => {
+  const doSaveConfig = (0, import_react6.useCallback)(async (ns, patch, expectedRevision) => {
     await api(`${CONFIGS_PREFIX}/${encodeURIComponent(ns)}`, {
       method: "POST",
       body: { patch, expectedRevision }
     });
     await loadConfigs();
   }, [loadConfigs]);
-  const doCreateProfile = (0, import_react5.useCallback)(async (name2) => {
+  const doCreateProfile = (0, import_react6.useCallback)(async (name2) => {
     setCreateOpen(false);
     const created = await api(PROFILE_CREATE_PATH, { method: "POST", body: { name: name2 } });
     await loadProfiles();
     setSelected(created.name);
     setView("plugins");
   }, [loadProfiles]);
-  const runWithBusy = (0, import_react5.useCallback)(async (fn) => {
+  const runWithBusy = (0, import_react6.useCallback)(async (fn) => {
     setBusy(true);
     try {
       await fn();
@@ -632,14 +660,14 @@ function PluginManagerTab() {
     if (confirm.kind === "uninstall") {
       return {
         title: `\u5378\u8F7D ${confirm.plugin.name}`,
-        body: /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-modal-body" }, /* @__PURE__ */ import_react5.default.createElement("p", null, "\u5C06\u4F5C\u7528\u4E8E ", /* @__PURE__ */ import_react5.default.createElement("strong", null, targetLabel), "\uFF1A\u6267\u884C ", /* @__PURE__ */ import_react5.default.createElement("code", null, "pnpm remove ", confirm.plugin.name), " \u5E76\u4ECE bundle \u5C42\u79FB\u9664\u3002\u5378\u8F7D\u540E\u9700\u91CD\u542F\u751F\u6548\u3002"), /* @__PURE__ */ import_react5.default.createElement("label", { className: "pm-toggle", style: { alignItems: "flex-start" } }, /* @__PURE__ */ import_react5.default.createElement(
+        body: /* @__PURE__ */ import_react6.default.createElement("div", { className: "pm-modal-body" }, /* @__PURE__ */ import_react6.default.createElement("p", null, "\u5C06\u4F5C\u7528\u4E8E ", /* @__PURE__ */ import_react6.default.createElement("strong", null, targetLabel), "\uFF1A\u6267\u884C ", /* @__PURE__ */ import_react6.default.createElement("code", null, "pnpm remove ", confirm.plugin.name), " \u5E76\u4ECE bundle \u5C42\u79FB\u9664\u3002\u5378\u8F7D\u540E\u9700\u91CD\u542F\u751F\u6548\u3002"), /* @__PURE__ */ import_react6.default.createElement("label", { className: "pm-toggle", style: { alignItems: "flex-start" } }, /* @__PURE__ */ import_react6.default.createElement(
           "input",
           {
             type: "checkbox",
             checked: purgeData,
             onChange: (e) => setPurgeData(e.target.checked)
           }
-        ), /* @__PURE__ */ import_react5.default.createElement("span", null, /* @__PURE__ */ import_react5.default.createElement("strong", null, "\u540C\u65F6\u5220\u9664\u63D2\u4EF6\u6570\u636E"), "\uFF08", /* @__PURE__ */ import_react5.default.createElement("code", null, "~/.dsh/data/", confirm.plugin.name, "/"), "\u3001", /* @__PURE__ */ import_react5.default.createElement("code", null, "profiles/*/data/", confirm.plugin.name, "/"), "\u3001settings \u914D\u7F6E\uFF09\u2014\u2014", /* @__PURE__ */ import_react5.default.createElement("span", { style: { color: "var(--dsw-alias-state-error-primary, #C0392B)" } }, "\u4E0D\u53EF\u6062\u590D"))), /* @__PURE__ */ import_react5.default.createElement("p", { className: "pm-sub" }, "\u4E0D\u52FE\u9009\u5219\u4FDD\u7559\u6570\u636E\uFF0C\u91CD\u88C5\u63D2\u4EF6\u540E\u81EA\u52A8\u6062\u590D\u4F7F\u7528\u3002")),
+        ), /* @__PURE__ */ import_react6.default.createElement("span", null, /* @__PURE__ */ import_react6.default.createElement("strong", null, "\u540C\u65F6\u5220\u9664\u63D2\u4EF6\u6570\u636E"), "\uFF08", /* @__PURE__ */ import_react6.default.createElement("code", null, "~/.dsh/data/", confirm.plugin.name, "/"), "\u3001", /* @__PURE__ */ import_react6.default.createElement("code", null, "profiles/*/data/", confirm.plugin.name, "/"), "\u3001settings \u914D\u7F6E\uFF09\u2014\u2014", /* @__PURE__ */ import_react6.default.createElement("span", { style: { color: "var(--dsw-alias-state-error-primary, #C0392B)" } }, "\u4E0D\u53EF\u6062\u590D"))), /* @__PURE__ */ import_react6.default.createElement("p", { className: "pm-sub" }, "\u4E0D\u52FE\u9009\u5219\u4FDD\u7559\u6570\u636E\uFF0C\u91CD\u88C5\u63D2\u4EF6\u540E\u81EA\u52A8\u6062\u590D\u4F7F\u7528\u3002")),
         ok: "\u786E\u8BA4\u5378\u8F7D",
         danger: true,
         onOk: () => runWithBusy(() => doUninstall(confirm.plugin, purgeData))
@@ -648,7 +676,7 @@ function PluginManagerTab() {
     if (confirm.kind === "update") {
       return {
         title: `\u66F4\u65B0 ${confirm.plugin.name}`,
-        body: /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-modal-body" }, /* @__PURE__ */ import_react5.default.createElement("p", null, "\u5C06\u4F5C\u7528\u4E8E ", /* @__PURE__ */ import_react5.default.createElement("strong", null, targetLabel), "\uFF1A\u6267\u884C ", /* @__PURE__ */ import_react5.default.createElement("code", null, "pnpm update ", confirm.plugin.name), "\u3002\u66F4\u65B0\u540E\u9700\u91CD\u542F\u751F\u6548\u3002")),
+        body: /* @__PURE__ */ import_react6.default.createElement("div", { className: "pm-modal-body" }, /* @__PURE__ */ import_react6.default.createElement("p", null, "\u5C06\u4F5C\u7528\u4E8E ", /* @__PURE__ */ import_react6.default.createElement("strong", null, targetLabel), "\uFF1A\u6267\u884C ", /* @__PURE__ */ import_react6.default.createElement("code", null, "pnpm update ", confirm.plugin.name), "\u3002\u66F4\u65B0\u540E\u9700\u91CD\u542F\u751F\u6548\u3002")),
         ok: "\u786E\u8BA4\u66F4\u65B0",
         danger: false,
         onOk: () => runWithBusy(() => doUpdate(confirm.plugin))
@@ -657,7 +685,7 @@ function PluginManagerTab() {
     if (confirm.kind === "updateAll") {
       return {
         title: "\u5168\u90E8\u66F4\u65B0",
-        body: /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-modal-body" }, /* @__PURE__ */ import_react5.default.createElement("p", null, "\u5C06\u4F5C\u7528\u4E8E ", /* @__PURE__ */ import_react5.default.createElement("strong", null, targetLabel), "\uFF1A\u6267\u884C ", /* @__PURE__ */ import_react5.default.createElement("code", null, "pnpm update"), "\uFF0C\u66F4\u65B0\u6240\u6709\u4F9D\u8D56\u5230\u5141\u8BB8\u8303\u56F4\u5185\u6700\u65B0\u7248\u672C\u3002\u66F4\u65B0\u540E\u9700\u91CD\u542F\u751F\u6548\u3002")),
+        body: /* @__PURE__ */ import_react6.default.createElement("div", { className: "pm-modal-body" }, /* @__PURE__ */ import_react6.default.createElement("p", null, "\u5C06\u4F5C\u7528\u4E8E ", /* @__PURE__ */ import_react6.default.createElement("strong", null, targetLabel), "\uFF1A\u6267\u884C ", /* @__PURE__ */ import_react6.default.createElement("code", null, "pnpm update"), "\uFF0C\u66F4\u65B0\u6240\u6709\u4F9D\u8D56\u5230\u5141\u8BB8\u8303\u56F4\u5185\u6700\u65B0\u7248\u672C\u3002\u66F4\u65B0\u540E\u9700\u91CD\u542F\u751F\u6548\u3002")),
         ok: "\u786E\u8BA4\u5168\u90E8\u66F4\u65B0",
         danger: false,
         onOk: () => runWithBusy(() => doUpdate(null))
@@ -665,7 +693,7 @@ function PluginManagerTab() {
     }
     return null;
   })();
-  return /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-root", "data-plugin-manager": true }, /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-head" }, /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-head-left" }, /* @__PURE__ */ import_react5.default.createElement("span", { className: "pm-title" }, "\u63D2\u4EF6\u7BA1\u7406"), /* @__PURE__ */ import_react5.default.createElement(
+  return /* @__PURE__ */ import_react6.default.createElement("div", { className: "pm-root", "data-plugin-manager": true }, /* @__PURE__ */ import_react6.default.createElement("div", { className: "pm-head" }, /* @__PURE__ */ import_react6.default.createElement("div", { className: "pm-head-left" }, /* @__PURE__ */ import_react6.default.createElement("span", { className: "pm-title" }, "\u63D2\u4EF6\u7BA1\u7406"), /* @__PURE__ */ import_react6.default.createElement(
     "select",
     {
       className: "pm-profile-select",
@@ -676,19 +704,19 @@ function PluginManagerTab() {
       "aria-label": "\u9009\u62E9 profile",
       title: "\u64CD\u4F5C\u76EE\u6807 profile\uFF1A\u5B89\u88C5/\u5378\u8F7D/\u66F4\u65B0/\u542F\u505C\u5C06\u4F5C\u7528\u4E8E\u9009\u4E2D\u7684 profile"
     },
-    /* @__PURE__ */ import_react5.default.createElement("option", { value: "" }, "\uFF08\u5F53\u524D profile\uFF09"),
-    profiles.map((p) => /* @__PURE__ */ import_react5.default.createElement("option", { key: p.name, value: p.name }, p.name, p.isCurrent ? "\uFF08\u5F53\u524D\uFF09" : ""))
-  ), /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", className: "pm-btn", onClick: () => setCreateOpen(true), disabled: busy }, "\u65B0\u5EFA profile")), /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-actions" }, /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", className: "pm-btn", onClick: () => void runWithBusy(async () => {
+    /* @__PURE__ */ import_react6.default.createElement("option", { value: "" }, "\uFF08\u5F53\u524D profile\uFF09"),
+    profiles.map((p) => /* @__PURE__ */ import_react6.default.createElement("option", { key: p.name, value: p.name }, p.name, p.isCurrent ? "\uFF08\u5F53\u524D\uFF09" : ""))
+  ), /* @__PURE__ */ import_react6.default.createElement("button", { type: "button", className: "pm-btn", onClick: () => setCreateOpen(true), disabled: busy }, "\u65B0\u5EFA profile")), /* @__PURE__ */ import_react6.default.createElement("div", { className: "pm-actions" }, /* @__PURE__ */ import_react6.default.createElement("button", { type: "button", className: "pm-btn", onClick: () => void runWithBusy(async () => {
     await loadProfiles();
     await load();
     if (view === "configs" && targetIsCurrent) await loadConfigs();
-  }), disabled: busy, title: "\u91CD\u65B0\u62C9\u53D6\u6E05\u5355/\u64CD\u4F5C\u8BB0\u5F55\u6570\u636E" }, "\u5237\u65B0\u5217\u8868"), /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", className: "pm-btn", onClick: () => setConfirm({ kind: "updateAll", plugin: null }), disabled: busy || inventory === null }, "\u5168\u90E8\u66F4\u65B0"), /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", className: "pm-btn pm-btn-primary", onClick: () => setInstallOpen(true) }, "\u5B89\u88C5\u63D2\u4EF6"))), /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-tabs", role: "tablist" }, /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", role: "tab", "aria-selected": view === "plugins", className: view === "plugins" ? "pm-tab pm-tab-active" : "pm-tab", onClick: () => setView("plugins") }, "\u63D2\u4EF6"), /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", role: "tab", "aria-selected": view === "configs", className: view === "configs" ? "pm-tab pm-tab-active" : "pm-tab", onClick: () => {
+  }), disabled: busy, title: "\u91CD\u65B0\u62C9\u53D6\u6E05\u5355/\u64CD\u4F5C\u8BB0\u5F55\u6570\u636E" }, "\u5237\u65B0\u5217\u8868"), /* @__PURE__ */ import_react6.default.createElement("button", { type: "button", className: "pm-btn", onClick: () => setConfirm({ kind: "updateAll", plugin: null }), disabled: busy || inventory === null }, "\u5168\u90E8\u66F4\u65B0"), /* @__PURE__ */ import_react6.default.createElement("button", { type: "button", className: "pm-btn pm-btn-primary", onClick: () => setInstallOpen(true) }, "\u5B89\u88C5\u63D2\u4EF6"))), /* @__PURE__ */ import_react6.default.createElement("div", { className: "pm-tabs", role: "tablist" }, /* @__PURE__ */ import_react6.default.createElement("button", { type: "button", role: "tab", "aria-selected": view === "plugins", className: view === "plugins" ? "pm-tab pm-tab-active" : "pm-tab", onClick: () => setView("plugins") }, "\u63D2\u4EF6"), /* @__PURE__ */ import_react6.default.createElement("button", { type: "button", role: "tab", "aria-selected": view === "configs", className: view === "configs" ? "pm-tab pm-tab-active" : "pm-tab", onClick: () => {
     setView("configs");
     if (targetIsCurrent) void loadConfigs();
-  }, disabled: !targetIsCurrent, title: !targetIsCurrent ? "\u914D\u7F6E\u4EC5\u5BF9\u5F53\u524D profile \u53EF\u7528" : void 0 }, "\u914D\u7F6E")), !targetIsCurrent ? /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-banner pm-banner-warn" }, "\u{1F3AF} \u64CD\u4F5C\u76EE\u6807\uFF1A", /* @__PURE__ */ import_react5.default.createElement("strong", null, selected), " profile\u3002\u5B89\u88C5/\u5378\u8F7D/\u66F4\u65B0/\u542F\u505C\u5C06\u5199\u5165\u8BE5 profile\uFF08\u82E5\u5B83\u4E0D\u662F\u5F53\u524D\u8FD0\u884C\u7684 profile\uFF0C\u53D8\u66F4\u5728\u5176\u4E0B\u6B21\u542F\u52A8\u65F6\u751F\u6548\uFF09\u3002") : null, success !== null ? /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-banner pm-banner-success", role: "status" }, success) : null, error !== null ? /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-banner pm-banner-error", role: "alert" }, error, /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", className: "pm-btn", style: { marginLeft: 8 }, onClick: () => void runWithBusy(async () => {
+  }, disabled: !targetIsCurrent, title: !targetIsCurrent ? "\u914D\u7F6E\u4EC5\u5BF9\u5F53\u524D profile \u53EF\u7528" : void 0 }, "\u914D\u7F6E")), !targetIsCurrent ? /* @__PURE__ */ import_react6.default.createElement("div", { className: "pm-banner pm-banner-warn" }, "\u{1F3AF} \u64CD\u4F5C\u76EE\u6807\uFF1A", /* @__PURE__ */ import_react6.default.createElement("strong", null, selected), " profile\u3002\u5B89\u88C5/\u5378\u8F7D/\u66F4\u65B0/\u542F\u505C\u5C06\u5199\u5165\u8BE5 profile\uFF08\u82E5\u5B83\u4E0D\u662F\u5F53\u524D\u8FD0\u884C\u7684 profile\uFF0C\u53D8\u66F4\u5728\u5176\u4E0B\u6B21\u542F\u52A8\u65F6\u751F\u6548\uFF09\u3002") : null, success !== null ? /* @__PURE__ */ import_react6.default.createElement("div", { className: "pm-banner pm-banner-success", role: "status" }, success, /* @__PURE__ */ import_react6.default.createElement("button", { type: "button", className: "pm-btn", style: { marginLeft: 8 }, onClick: () => setSuccess(null) }, "\u5173\u95ED")) : null, error !== null ? /* @__PURE__ */ import_react6.default.createElement("div", { className: "pm-banner pm-banner-error", role: "alert" }, error, /* @__PURE__ */ import_react6.default.createElement("button", { type: "button", className: "pm-btn", style: { marginLeft: 8 }, onClick: () => void runWithBusy(async () => {
     if (view === "configs" && targetIsCurrent) await loadConfigs();
     await load();
-  }) }, "\u91CD\u8BD5")) : null, view === "plugins" ? /* @__PURE__ */ import_react5.default.createElement(import_react5.default.Fragment, null, /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-search" }, /* @__PURE__ */ import_react5.default.createElement("input", { type: "search", value: query, placeholder: "\u641C\u7D22\u63D2\u4EF6\uFF08\u540D\u79F0/\u63CF\u8FF0\uFF09", "aria-label": "\u641C\u7D22\u63D2\u4EF6", onChange: (e) => setQuery(e.target.value) }), /* @__PURE__ */ import_react5.default.createElement("span", { className: "pm-count" }, filtered.length, " / ", inventory?.plugins.length ?? 0, " \u4E2A")), status === "loading" ? /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-empty" }, "\u52A0\u8F7D\u4E2D\u2026") : null, status === "error" ? /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-empty" }, "\u52A0\u8F7D\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5") : null, status === "ready" && filtered.length === 0 ? /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-empty" }, query ? "\u65E0\u5339\u914D\u63D2\u4EF6" : `${effectiveProfile ?? ""} profile \u65E0\u5DF2\u5B89\u88C5\u63D2\u4EF6`) : null, status === "ready" && filtered.length > 0 ? /* @__PURE__ */ import_react5.default.createElement("ul", { className: "pm-grid", style: { listStyle: "none", margin: 0, padding: 0 } }, filtered.map((plugin) => /* @__PURE__ */ import_react5.default.createElement(
+  }) }, "\u91CD\u8BD5")) : null, view === "plugins" ? /* @__PURE__ */ import_react6.default.createElement(import_react6.default.Fragment, null, /* @__PURE__ */ import_react6.default.createElement(OpsPanel, { ops, audit: inventory?.audit ?? [] }), /* @__PURE__ */ import_react6.default.createElement("div", { className: "pm-search" }, /* @__PURE__ */ import_react6.default.createElement("input", { type: "search", value: query, placeholder: "\u641C\u7D22\u63D2\u4EF6\uFF08\u540D\u79F0/\u63CF\u8FF0\uFF09", "aria-label": "\u641C\u7D22\u63D2\u4EF6", onChange: (e) => setQuery(e.target.value) }), /* @__PURE__ */ import_react6.default.createElement("span", { className: "pm-count" }, filtered.length, " / ", inventory?.plugins.length ?? 0, " \u4E2A")), status === "loading" ? /* @__PURE__ */ import_react6.default.createElement("div", { className: "pm-empty" }, "\u52A0\u8F7D\u4E2D\u2026") : null, status === "error" ? /* @__PURE__ */ import_react6.default.createElement("div", { className: "pm-empty" }, "\u52A0\u8F7D\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5") : null, status === "ready" && filtered.length === 0 ? /* @__PURE__ */ import_react6.default.createElement("div", { className: "pm-empty" }, query ? "\u65E0\u5339\u914D\u63D2\u4EF6" : `${effectiveProfile ?? ""} profile \u65E0\u5DF2\u5B89\u88C5\u63D2\u4EF6`) : null, status === "ready" && filtered.length > 0 ? /* @__PURE__ */ import_react6.default.createElement("ul", { className: "pm-grid", style: { listStyle: "none", margin: 0, padding: 0 } }, filtered.map((plugin) => /* @__PURE__ */ import_react6.default.createElement(
     PluginCard,
     {
       key: plugin.name,
@@ -702,9 +730,9 @@ function PluginManagerTab() {
       },
       onError: setError
     }
-  ))) : null) : /* @__PURE__ */ import_react5.default.createElement(ConfigPanel, { configs, busy, onSave: doSaveConfig, onError: setError }), installOpen ? /* @__PURE__ */ import_react5.default.createElement(InstallDialog, { onCancel: () => setInstallOpen(false), onInstall: (command) => runWithBusy(() => doInstall(command)) }) : null, createOpen ? /* @__PURE__ */ import_react5.default.createElement(NewProfileDialog, { onCancel: () => setCreateOpen(false), onCreate: (name2) => runWithBusy(() => doCreateProfile(name2)) }) : null, confirmContent !== null ? /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-modal-backdrop", role: "presentation", onMouseDown: (e) => {
+  ))) : null) : /* @__PURE__ */ import_react6.default.createElement(ConfigPanel, { configs, busy, onSave: doSaveConfig, onError: setError }), installOpen ? /* @__PURE__ */ import_react6.default.createElement(InstallDialog, { onCancel: () => setInstallOpen(false), onInstall: (command) => runWithBusy(() => doInstall(command)) }) : null, createOpen ? /* @__PURE__ */ import_react6.default.createElement(NewProfileDialog, { onCancel: () => setCreateOpen(false), onCreate: (name2) => runWithBusy(() => doCreateProfile(name2)) }) : null, confirmContent !== null ? /* @__PURE__ */ import_react6.default.createElement("div", { className: "pm-modal-backdrop", role: "presentation", onMouseDown: (e) => {
     if (e.target === e.currentTarget && !busy) setConfirm(CONFIRM_DEFAULTS);
-  } }, /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-modal", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ import_react5.default.createElement("h3", null, confirmContent.title), confirmContent.body, /* @__PURE__ */ import_react5.default.createElement("div", { className: "pm-modal-foot" }, /* @__PURE__ */ import_react5.default.createElement("button", { type: "button", className: "pm-btn", disabled: busy, onClick: () => setConfirm(CONFIRM_DEFAULTS) }, "\u53D6\u6D88"), /* @__PURE__ */ import_react5.default.createElement(
+  } }, /* @__PURE__ */ import_react6.default.createElement("div", { className: "pm-modal", role: "dialog", "aria-modal": "true" }, /* @__PURE__ */ import_react6.default.createElement("h3", null, confirmContent.title), confirmContent.body, /* @__PURE__ */ import_react6.default.createElement("div", { className: "pm-modal-foot" }, /* @__PURE__ */ import_react6.default.createElement("button", { type: "button", className: "pm-btn", disabled: busy, onClick: () => setConfirm(CONFIRM_DEFAULTS) }, "\u53D6\u6D88"), /* @__PURE__ */ import_react6.default.createElement(
     "button",
     {
       type: "button",
