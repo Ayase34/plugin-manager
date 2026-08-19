@@ -1,0 +1,13 @@
+{
+  "name": "plugin-manager",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "index.mjs",
+    "src",
+    "client",
+    "client.js"
+  ],
+  "license": "MIT"
+}

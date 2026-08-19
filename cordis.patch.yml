@@ -1,0 +1,5 @@
+# plugin-manager bundle patch：向 web 组合挂载插件管理器（Node half 提供管理 API，
+# client half 由 __ModuleLoader__ 内核挂载，注册设置→插件 的「插件管理」选项卡）。
+- insert:
+    - id: plugin-manager
+      name: plugin-manager
