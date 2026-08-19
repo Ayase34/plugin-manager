@@ -7,7 +7,7 @@ A plugin manager for the DSH Web GUI: **browse, install, uninstall, update, enab
 ## Install
 
 ```bash
-dsh plugin --profile <name> add github:<your-github-username>/plugin-manager
+dsh plugin --profile <name> add github:Ayase34/plugin-manager
 ```
 
 Restart DSH after installation, then use it at **Settings → Plugins → Plugin Manager**.

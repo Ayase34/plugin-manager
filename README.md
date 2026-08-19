@@ -7,7 +7,7 @@ DSH Web GUI 的插件管理插件：在「设置 → 插件」页提供**插件�
 ## 安装
 
 ```bash
-dsh plugin --profile <name> add github:<你的 GitHub 用户名>/plugin-manager
+dsh plugin --profile <name> add github:Ayase34/plugin-manager
 ```
 
 安装后重启 DSH，在 **设置 → 插件 → 插件管理** 使用。
